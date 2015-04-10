@@ -50,7 +50,7 @@ class Grid
 
   def move(tile)
     reveal(tile)
-    if get_value_at(tile) == "_"
+    if get_value_at(tile) == " "
       (-1..1).each do |y|
         (-1..1).each do |x|
           unless y == 0 && x == 0
@@ -68,9 +68,9 @@ class Grid
   end
   def get_value_at(tile)
     if flagged?(tile)
-      "~"
+      "¶"
     elsif hidden?(tile)
-      "#"
+      "█"
     elsif bomb?(tile)
       "X"
     else
@@ -83,7 +83,7 @@ class Grid
         end
       end
       if val == 0
-        "_"
+        " "
       else
         val.to_s
       end
@@ -92,8 +92,15 @@ class Grid
 
   def to_s
     out = []
+    horizontal_index = []
+    horizontal_index << ' '
+    @width.times do |x|
+      horizontal_index << (x + 1) % 10
+    end
+    out << horizontal_index.join(" ")
     @height.times do |y|
       row = []
+      row << (y + 1) % 10
       @width.times do |x|
         row << get_value_at([x, y])
       end

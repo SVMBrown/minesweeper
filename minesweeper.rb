@@ -8,8 +8,8 @@ class Minesweeper
     game.setup
   end
   def setup
-    puts "Please enter the map settings you wish to play with. (width, height, # of bombs)"
-    settings = gets.chomp.split(',')
+    puts "Please enter the map settings you wish to play with. (width height # of bombs)"
+    settings = gets.chomp.split(' ')
     if settings.length < 3
       puts "invalid options"
       setup
@@ -35,14 +35,14 @@ class Minesweeper
     setup if gets.chomp.upcase == "Y"
   end
   def choose_move
-    puts "Please reveal (x,y) or flag (x,y,f) a tile."
-    input = gets.chomp.split(",")
+    puts "Please reveal (x y) or flag (x y f) a tile."
+    input = gets.chomp.split(" ")
     if input.length < 2
       puts "invalid move."
       return nil
     end
     tile = input.slice!(0..1)
-    tile = tile.map{|e| e.to_i}
+    tile = tile.map{|e| e.to_i - 1}
     if input.length == 0
       make_move(tile)
     else
