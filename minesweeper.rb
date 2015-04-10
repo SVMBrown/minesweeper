@@ -10,13 +10,18 @@ class Minesweeper
   def setup
     puts "Please enter the map settings you wish to play with. (width, height, # of bombs)"
     settings = gets.chomp.split(',')
-    start_round(settings.shift.to_i, settings.shift.to_i, settings.shift.to_i)
+    if settings.length < 3
+      puts "invalid options"
+      setup
+    else
+      start_round(settings.shift.to_i, settings.shift.to_i, settings.shift.to_i)
+    end
   end
   def start_round(width, height, bombs)
     @grid = Grid.new(width, height, bombs)
     until @grid.won || @grid.lost
       puts @grid
-      make_move
+      choose_move
     end
     puts @grid
     completion_alert = []
@@ -29,15 +34,41 @@ class Minesweeper
     puts completion_alert.join(" ")
     setup if gets.chomp.upcase == "Y"
   end
-  def make_move
-    puts "Please select a tile. (x, y)"
-    tile = nil
-    loop do
-      tile = gets.chomp.split(",").map{ |e| e.to_i }
-      break if @grid.is_valid_move?(tile)
-      puts "Invalid move, please try again. (x, y)"
+  def choose_move
+    puts "Please reveal (x,y) or flag (x,y,f) a tile."
+    input = gets.chomp.split(",")
+    if input.length < 2
+      puts "invalid move."
+      return nil
     end
-    @grid.move(tile)
+    tile = input.slice!(0..1)
+    tile = tile.map{|e| e.to_i}
+    if input.length == 0
+      make_move(tile)
+    else
+      handle_options(tile, input[0])
+    end
   end
+  def handle_options(tile, option)
+    case option.upcase
+    when "F" then @grid.toggle_flag(tile) if @grid.is_valid_move?(tile)
+    else
+      puts "invalid option."
+    end
+  end
+
+  def make_move(tile)
+    if !@grid.is_valid_move?(tile)
+      puts "invalid move."
+    elsif @grid.flagged?(tile)
+      puts "This tile is flagged. Are you sure you wanna reveal it?? (Y/N)"
+      if gets.chomp.upcase == "Y"
+        @grid.move(tile)
+      end
+    else
+      @grid.move(tile)
+    end
+  end
+
 end
 Minesweeper.run

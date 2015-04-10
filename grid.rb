@@ -6,6 +6,7 @@ class Grid
     @height = height
     @bombs = []
     @revealed = []
+    @flagged = []
     @won = false
     @lost = false
     add_bombs(bomb_amount)
@@ -21,6 +22,13 @@ class Grid
       @bombs.push(bomb)
     end
   end
+  def toggle_flag(tile)
+    if flagged?(tile)
+      @flagged.delete(tile)
+    else
+      @flagged.push(tile)
+    end
+  end
 
   def hidden?(tile)
     !@revealed.any?{ |e| e == tile }
@@ -28,6 +36,10 @@ class Grid
 
   def bomb?(tile)
     @bombs.any?{ |e| e == tile }
+  end
+
+  def flagged?(tile)
+    @flagged.any?{ |e| e == tile }
   end
 
   def is_valid_move?(tile)
@@ -38,7 +50,7 @@ class Grid
 
   def move(tile)
     reveal(tile)
-    if get_value_at(tile) == "0"
+    if get_value_at(tile) == "_"
       (-1..1).each do |y|
         (-1..1).each do |x|
           unless y == 0 && x == 0
@@ -55,7 +67,9 @@ class Grid
     @won = (@bombs.length + @revealed.length) == @width * @height
   end
   def get_value_at(tile)
-    if hidden?(tile)
+    if flagged?(tile)
+      "~"
+    elsif hidden?(tile)
       "#"
     elsif bomb?(tile)
       "X"
@@ -68,7 +82,11 @@ class Grid
           end
         end
       end
-      val.to_s
+      if val == 0
+        "_"
+      else
+        val.to_s
+      end
     end
   end
 
@@ -81,6 +99,7 @@ class Grid
       end
       out << row.join(" ")
     end
+    out.reverse!
     out.join("\n")
   end
 end
